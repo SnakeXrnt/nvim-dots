@@ -1,0 +1,52 @@
+vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
+vim.g.mapleader = " "
+
+-- bootstrap lazy and all plugins
+local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
+
+if not vim.uv.fs_stat(lazypath) then
+  local repo = "https://github.com/folke/lazy.nvim.git"
+  vim.fn.system { "git", "clone", "--filter=blob:none", repo, "--branch=stable", lazypath }
+end
+
+vim.opt.rtp:prepend(lazypath)
+
+local lazy_config = require "configs.lazy"
+
+-- load plugins
+require("lazy").setup({
+  {
+    "NvChad/NvChad",
+    lazy = false,
+    branch = "v2.5",
+    import = "nvchad.plugins",
+  },
+
+  { import = "plugins" },
+}, lazy_config)
+
+-- lsp s 
+vim.lsp.enable('clangd')
+vim.lsp.enable('csharp-ls')
+
+vim.o.updatetime = 300
+
+local grp = vim.api.nvim_create_augroup("autosave_idle", { clear = true })
+vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+  group = grp,
+  callback = function()
+    if vim.bo.buftype ~= "" or not vim.bo.modifiable or vim.bo.readonly then return end
+    if vim.fn.empty(vim.fn.expand("%:p")) == 1 then return end
+    if vim.bo.modified then vim.cmd("silent update") end  -- write only if changed
+  end,
+})
+-- load theme
+dofile(vim.g.base46_cache .. "defaults")
+dofile(vim.g.base46_cache .. "statusline")
+
+require "options"
+require "autocmds"
+
+vim.schedule(function()
+  require "mappings"
+end)
