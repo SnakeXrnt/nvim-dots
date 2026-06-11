@@ -1,7 +1,7 @@
 return {
   {
     "stevearc/conform.nvim",
-    -- event = 'BufWritePre', -- uncomment for format on save
+    event = { "BufWritePre", "BufNewFile" },
     opts = require "configs.conform",
   },
 
@@ -29,6 +29,7 @@ return {
         "json-lsp",
         "rust-analyzer",
         "clangd",
+        "clang-format",
         "pyright",
 
         -- !

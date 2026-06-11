@@ -222,6 +222,20 @@ return {
             graphql = true,
           }
 
+          local has_conform = package.loaded["conform"] ~= nil
+          if not has_conform then
+            local ok, lazy_config = pcall(require, "lazy.core.config")
+            if ok and lazy_config.spec and lazy_config.spec.plugins["conform.nvim"] then
+              has_conform = true
+            end
+          end
+
+          if has_conform then
+            -- If conform is available, it handles BufWritePre via its own config
+            -- We don't need to add another BufWritePre here.
+            return
+          end
+
           if client.supports_method("textDocument/formatting", nil) then
             -- Format the current buffer on save.
             vim.api.nvim_create_autocmd("BufWritePre", {
